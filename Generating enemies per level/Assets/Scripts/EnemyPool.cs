@@ -17,7 +17,7 @@ public class EnemyPool : MonoBehaviour
     {
         _pool = new ObjectPool<Enemy>(
             createFunc: () => Instantiate(_prefab),
-            actionOnGet: (enemy) => ActingOnGet(enemy),
+            actionOnGet: (enemy) => SubscribeToEnemy(enemy),
             actionOnRelease: (enemy) => enemy.gameObject.SetActive(false),
             actionOnDestroy: (enemy) => Destroy(enemy.gameObject),
             collectionCheck: true,
@@ -32,7 +32,7 @@ public class EnemyPool : MonoBehaviour
         return _pool.Get();
     }
 
-    private void ActingOnGet(Enemy enemy)
+    private void SubscribeToEnemy(Enemy enemy)
     {
         enemy.Deactivated += ReleaseEnemy;
     }

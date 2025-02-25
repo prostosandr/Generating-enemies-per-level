@@ -1,22 +1,29 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
 public class Spawner : MonoBehaviour
 {
     [SerializeField] private float _spawnTime;
     [SerializeField] private EnemyPool _enemyPool;
-
-    private List<SpawnPoint> _spawnPoints;
+    [SerializeField] private Transform[] _spawnPoints;
 
     private void Start()
     {
-        _spawnPoints = new List<SpawnPoint>(FindObjectsByType<SpawnPoint>(FindObjectsSortMode.None));
-
-        StartCoroutine(SpawnTime());
+        StartCoroutine(Spawning());
     }
 
-    private IEnumerator SpawnTime()
+#if UNITY_EDITOR
+    [ContextMenu("Refresh Child Array")]
+    private void RefreshChildArray()
+    {
+        int pointCount = transform.childCount;
+        _spawnPoints = new Transform[pointCount];
+
+        for (int i = 0; i < pointCount; i++)
+            _spawnPoints[i] = transform.GetChild(i);
+    }
+#endif
+
+    private IEnumerator Spawning()
     {
         var wait = new WaitForSeconds(_spawnTime);
 
@@ -33,11 +40,12 @@ public class Spawner : MonoBehaviour
     {
         int minNuber = 0;
 
-        SpawnPoint spawnPoint = _spawnPoints[Random.Range(minNuber, _spawnPoints.Count)];
+        Transform spawnPoint = _spawnPoints[Random.Range(minNuber, _spawnPoints.Length)];
 
         Enemy enemy = _enemyPool.GetEnemy();
         enemy.gameObject.SetActive(true);
         enemy.transform.position = spawnPoint.transform.position;
-        enemy.StartLiveCycle(spawnPoint.GetRandomDirection());
+        spawnPoint.TryGetComponent(out SpawnPoint currentSpawnPoint);
+        enemy.StartLiveCycle(currentSpawnPoint.GetRandomDirection());
     }
 }

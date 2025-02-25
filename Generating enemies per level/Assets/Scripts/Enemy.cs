@@ -12,6 +12,20 @@ public class Enemy : MonoBehaviour
 
     public event Action<Enemy> Deactivated;
 
+    private void Init(Vector3 direction)
+    {
+        _endTime = Time.time + _liveTime;
+
+        transform.rotation = Quaternion.LookRotation(direction);
+    }
+
+    public void StartLiveCycle(Vector3 direction)
+    {
+        Init(direction);
+
+        _coroutine = StartCoroutine(TravellingTime());
+    }
+
     private IEnumerator TravellingTime()
     {
         while (Time.time < _endTime)
@@ -22,25 +36,11 @@ public class Enemy : MonoBehaviour
         }
 
         Deactivate();
-    }
-
-    public void StartLiveCycle(Vector3 direction)
-    {
-        Init(direction);
-
-        _coroutine = StartCoroutine(TravellingTime());
-    }
+    } 
 
     private void Displacement()
     {
         transform.Translate(transform.forward * Time.deltaTime * _speed, Space.World);
-    }
-
-    private void Init(Vector3 direction)
-    {
-        _endTime = Time.time + _liveTime;
-
-        transform.rotation = Quaternion.LookRotation(direction);
     }
 
     private void Deactivate()
